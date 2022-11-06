@@ -1,0 +1,31 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:13.2-alpine
+    container_name: demo_postgres
+    restart: on-failure
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=demo
+      - POSTGRES_DB_SCHEMA=demo
+    volumes:
+      - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+      - postgres_data:/var/lib/postgresql/data
+  slicer-elastic:
+    image: elasticsearch:7.17.6
+    container_name: demo-elastic
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - http.max_content_length=500mb
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+volumes:
+  postgres_data:
+  elastic_data:
